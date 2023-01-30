@@ -1,4 +1,4 @@
-#include "server.h"
+#include "qserver/server.h"
 
 int main() {
     QueryServer server = QueryServer(1234);
