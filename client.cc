@@ -33,7 +33,9 @@ std::string QueryClient::query(const char* query) {
         perror("write error");
     }
     char rbuf[64] = {};
-    n = read(this->connfd, rbuf, sizeof(rbuf));
-    std::cout << "Server says: " << rbuf << std::endl;
+    while (n > 0) {
+        n = read(this->connfd, rbuf, sizeof(rbuf));
+        std::cout << rbuf << std::endl;
+    }
     return (std::string) rbuf;
 }

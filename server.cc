@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <cstring>
+#include <cstdlib>
+#include <cstdio>
 
 static void err_msg(const char* text) {
     std::cerr << text << std::endl;
@@ -56,18 +58,28 @@ void QueryServer::run() {
             perror("accept error");
         }
 
-        char rbuf[64] = {};
-        ssize_t n = read(connfd, rbuf, sizeof(rbuf));
+        char qbuf[64] = {};
+        ssize_t n = read(connfd, qbuf, sizeof(qbuf));
         if (n <= 0) {
             err_msg("read");
             continue;
+        }
+        std::cout << "Receive query: " << qbuf << std::endl;
+
+        FILE *pipe = popen(qbuf, "r");
+        if (!pipe) {
+            err_msg("Execute erorr");
         }
 
-        char wbuf[] = "Hello from server";
-        n = write(connfd, wbuf, strlen(wbuf));
-        if (n <= 0) {
-            err_msg("read");
+
+        char wbuf[1024];
+        while(fgets(wbuf, 1024, pipe)) {
+            n = write(connfd, wbuf, strlen(wbuf));
+            if (n <= 0) {
+            err_msg("write");
             continue;
         }
+        }
+        close(connfd);
     }
 }
