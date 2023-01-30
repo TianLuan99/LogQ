@@ -69,15 +69,20 @@ void QueryServer::run() {
         FILE *pipe = popen(qbuf, "r");
         if (!pipe) {
             err_msg("Execute erorr");
+            char wbuf[] = "Query failure, please try again.";
+            n = write(connfd, wbuf, strlen(wbuf));
+            if (n <= 0) {
+                err_msg("write");
+            }
+            continue;
         }
 
-
+        
         char wbuf[1024];
         while(fgets(wbuf, 1024, pipe)) {
             n = write(connfd, wbuf, strlen(wbuf));
             if (n <= 0) {
             err_msg("write");
-            continue;
         }
         }
         close(connfd);
